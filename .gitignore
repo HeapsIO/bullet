@@ -1,0 +1,8 @@
+*.suo
+ReleaseVS2013
+Debug
+x64
+*.db
+*.hl
+/src/bullet
+/src/bullet.cpp

@@ -1,0 +1,10 @@
+{
+	"name" : "bullet",
+	"url" : "https://github.com/HeapsIO/bullet",
+	"license" : "BSD",
+	"contributors" : ["ncannasse"],
+	"description" : "Bullet3D support for Haxe HL/JS.",
+	"version" : "1.0.0",
+	"releasenote" : "",
+	"dependencies": { "webidl" : "" }
+}
