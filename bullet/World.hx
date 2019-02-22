@@ -9,8 +9,10 @@ class World {
 	var solver : Native.ConstraintSolver;
 	var inst : Native.DiscreteDynamicsWorld;
 	var bodies : Array<Body> = [];
+	public var parent : h3d.scene.Object;
 
-	public function new() {
+	public function new( ?parent ) {
+		this.parent = parent;
 		config = new Native.DefaultCollisionConfiguration();
 		dispatch = new Native.CollisionDispatcher(config);
 		broad = new Native.DbvtBroadphase();
@@ -26,15 +28,25 @@ class World {
 		inst.stepSimulation(time, iterations);
 	}
 
-	public function addRigidBody( b : Body ) {
-		if( bodies.indexOf(b) >= 0 ) throw "Body already in world";
-		bodies.push(b);
-		inst.addRigidBody(@:privateAccess b.inst,1,1);
+	public function sync() {
+		for( b in bodies )
+			if( b.object != null )
+				b.sync();
 	}
 
-	public function removeRigidBody( b : Body ) {
+	function addRigidBody( b : Body ) {
+		if( b.world != null ) throw "Body already in world";
+		bodies.push(b);
+		@:privateAccess b.world = this;
+		inst.addRigidBody(@:privateAccess b.inst,1,1);
+		if( b.object != null && parent != null && b.object.parent == null ) parent.addChild(b.object);
+	}
+
+	function removeRigidBody( b : Body ) {
 		if( !bodies.remove(b) ) return;
+		@:privateAccess b.world = null;
 		inst.removeRigidBody(@:privateAccess b.inst);
+		if( b.object != null && b.object.parent == parent ) b.object.remove();
 	}
 
 }

@@ -9,15 +9,17 @@ class Body {
 	var _q = new h3d.Quat();
 	var _tmp = new Array<Float>();
 
+	public var world(default,null) : World;
+
 	public var shape(default,null) : Shape;
 	public var mass(default,null) : Float;
 	public var position(get,never) : h3d.col.Point;
 	public var rotation(get,never) : h3d.Quat;
 
-	public function new( shape : Shape, mass : Float ) {
-		var inertia = new Native.Vector3(0, 0, 0);
-		if( mass > 0 )
-			@:privateAccess shape.getInstance().calculateLocalInertia(mass,inertia);
+	public var object(default,set) : h3d.scene.Object;
+
+	public function new( shape : Shape, mass : Float, ?world : World ) {
+		var inertia = new Native.Vector3(shape.inertia.x * mass, shape.inertia.y * mass, shape.inertia.x * mass);
 		state = new Native.DefaultMotionState();
 		var inf = new Native.RigidBodyConstructionInfo(mass, state, @:privateAccess shape.getInstance(), inertia);
 		inst = new Native.RigidBody(inf);
@@ -26,6 +28,24 @@ class Body {
 		this.shape = shape;
 		this.mass = mass;
 		_tmp[6] = 0.;
+		if( world != null ) addTo(world);
+	}
+
+	function set_object(o) {
+		if( object != null ) object.remove();
+		object = o;
+		if( object != null && object.parent == null && world != null && world.parent != null ) world.parent.addChild(object);
+		return o;
+	}
+
+	public function addTo( world : World ) {
+		if( this.world != null ) remove();
+		@:privateAccess world.addRigidBody(this);
+	}
+
+	public function remove() {
+		if( world == null ) return;
+		@:privateAccess world.removeRigidBody(this);
 	}
 
 	public function setTransform( p : h3d.col.Point, ?q : h3d.Quat ) {
@@ -42,9 +62,20 @@ class Body {
 		t.delete();
 	}
 
+	public function initObject() {
+		if( object != null ) return object.toMesh();
+		var o = new h3d.scene.Mesh(shape.getPrimitive());
+		object = o;
+		return o;
+	}
+
 	public function delete() {
 		inst.delete();
 		state.delete();
+	}
+
+	public function loadPosFromObject() {
+		setTransform(new h3d.col.Point(object.x, object.y, object.z), object.getRotationQuat());
 	}
 
 	function get_position() {
@@ -64,6 +95,19 @@ class Body {
 		q.delete();
 		t.delete();
 		return _q;
+	}
+
+	/**
+		Updated the linked object position and rotation based on physical simulation
+	**/
+	public function sync() {
+		if( object == null ) return;
+		var pos = position;
+		object.x = pos.x;
+		object.y = pos.y;
+		object.z = pos.z;
+		var q = rotation;
+		object.getRotationQuat().load(q); // don't share reference
 	}
 
 }
