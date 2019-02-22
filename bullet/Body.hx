@@ -6,6 +6,7 @@ class Body {
 	var state : Native.MotionState;
 	var inst : Native.RigidBody;
 	var _pos = new h3d.col.Point();
+	var _vel = new h3d.col.Point();
 	var _q = new h3d.Quat();
 	var _tmp = new Array<Float>();
 
@@ -14,8 +15,8 @@ class Body {
 	public var shape(default,null) : Shape;
 	public var mass(default,null) : Float;
 	public var position(get,never) : h3d.col.Point;
+	public var velocity(get,set) : h3d.col.Point;
 	public var rotation(get,never) : h3d.Quat;
-
 	public var object(default,set) : h3d.scene.Object;
 
 	public function new( shape : Shape, mass : Float, ?world : World ) {
@@ -59,7 +60,6 @@ class Body {
 			qv.delete();
 		}
 		inst.setCenterOfMassTransform(t);
-		t.delete();
 	}
 
 	public function initObject() {
@@ -82,7 +82,6 @@ class Body {
 		var t = inst.getCenterOfMassTransform();
 		var p = t.getOrigin();
 		_pos.set(p.x(), p.y(), p.z());
-		t.delete();
 		p.delete();
 		return _pos;
 	}
@@ -93,9 +92,29 @@ class Body {
 		var qw : Native.QuadWord = q;
 		_q.set(qw.x(), qw.y(), qw.z(), qw.w());
 		q.delete();
-		t.delete();
 		return _q;
 	}
+
+	function get_velocity() {
+		var v = inst.getLinearVelocity();
+		_vel.set(v.x(),v.y(),v.z());
+		return _vel;
+	}
+
+	function set_velocity(v) {
+		if( v != _vel ) _vel.load(v);
+		var p = new Native.Vector3(v.x, v.y, v.z);
+		inst.setLinearVelocity(p);
+		p.delete();
+		return v;
+	}
+
+	public function resetVelocity() {
+		inst.setAngularVelocity(zero);
+		inst.setLinearVelocity(zero);
+	}
+
+	static var zero = new Native.Vector3();
 
 	/**
 		Updated the linked object position and rotation based on physical simulation
