@@ -96,30 +96,79 @@ btDefaultMotionState implements btMotionState;
 // Collision
 
 interface btCollisionObject {
+
+	boolean mergesSimulationIslands();
+	[Const,Ref] btVector3 getAnisotropicFriction();
 	void setAnisotropicFriction([Const, Ref] btVector3 anisotropicFriction, long frictionMode);
-	btCollisionShape getCollisionShape();
+	boolean hasAnisotropicFriction(long frictionMode);
 	void setContactProcessingThreshold(float contactProcessingThreshold);
+	float getContactProcessingThreshold();
+	boolean isStaticObject();
+	boolean isKinematicObject();
+	boolean isStaticOrKinematicObject();
+	boolean hasContactResponse();
+	void setCollisionShape(btCollisionShape collisionShape);
+	btCollisionShape getCollisionShape();
+	void setIgnoreCollisionCheck([Const] btCollisionObject co, boolean ignoreCollisionCheck);
+	boolean checkCollideWithOverride([Const] btCollisionObject co);
+	long getActivationState();
 	void setActivationState(long newState);
+	void setDeactivationTime(float time);
+	float getDeactivationTime();
 	void forceActivationState(long newState);
 	void activate(optional boolean forceActivation);
 	boolean isActive();
-	boolean isKinematicObject();
-	boolean isStaticObject();
-	boolean isStaticOrKinematicObject();
 	void setRestitution(float rest);
+	float getRestitution();
 	void setFriction(float frict);
+	float getFriction();
 	void setRollingFriction(float frict);
+	float getRollingFriction();
+	void setSpinningFriction(float frict);
+	float getSpinningFriction();
+	void setContactStiffnessAndDamping(float stiffness, float damping);
+	float getContactStiffness();
+	float getContactDamping();
 	[Ref] btTransform getWorldTransform();
+	//[Const, Ref] btTransform getWorldTransform();
+	void setWorldTransform([Const,Ref] btTransform worldTrans);
+	//btBroadphaseProxy getBroadphaseHandle();
+	//[Const] btBroadphaseProxy getBroadphaseHandle();
+	//void setBroadphaseHandle(btBroadphaseProxy handle);
+	//[Const,Ref] btTransform getInterpolationWorldTransform();
+	[Ref] btTransform getInterpolationWorldTransform();
+	void setInterpolationWorldTransform([Const,Ref] btTransform trans);
+	void setInterpolationLinearVelocity([Const,Ref] btVector3 linvel);
+	void setInterpolationAngularVelocity([Const,Ref] btVector3 angvel);
+	[Const,Ref] btVector3 getInterpolationLinearVelocity();
+	[Const,Ref] btVector3 getInterpolationAngularVelocity();
+	long getIslandTag();
+	void setIslandTag(long tag);
+	long getCompanionId();
+	void setCompanionId(long id);
+	long getWorldArrayIndex();
+	void setWorldArrayIndex(long ix);
+	float getHitFraction();
+	void setHitFraction(float hitFraction);
 	long getCollisionFlags();
 	void setCollisionFlags(long flags);
-	void setWorldTransform([Const,Ref] btTransform worldTrans);
-	void setCollisionShape(btCollisionShape collisionShape);
-	void setCcdMotionThreshold (float ccdMotionThreshold);
-	void setCcdSweptSphereRadius (float radius);
-	long getUserIndex();
-	void setUserIndex(long index);
+	float getCcdSweptSphereRadius();
+	void setCcdSweptSphereRadius(float radius);
+	float getCcdMotionThreshold();
+	float getCcdSquareMotionThreshold();
+	void setCcdMotionThreshold(float ccdMotionThreshold);
 	VoidPtr getUserPointer();
+	long getUserIndex();
+	long getUserIndex2();
 	void setUserPointer(VoidPtr userPointer);
+	void setUserIndex(long index);
+	void setUserIndex2(long index);
+	//long getUpdateRevisionInternal();
+	//void setCustomDebugColor( [Const,Ref] btVector3 colorRGB);
+	//void removeCustomDebugColor();
+	//boolean getCustomDebugColor([Ref] btVector3 colorRGB);
+	boolean checkCollideWith([Const] btCollisionObject co);
+
 };
 
 [NoDelete]
@@ -519,10 +568,10 @@ interface btConeTwistConstraint {
 btConeTwistConstraint implements btTypedConstraint;
 
 interface btHingeConstraint {
-	void btHingeConstraint ([Ref] btRigidBody rbA, [Ref] btRigidBody rbB, [Ref] btVector3 pivotInA, [Ref] btVector3 pivotInB, [Ref] btVector3 axisInA, [Ref] btVector3 axisInB, optional boolean useReferenceFrameA);
-	void btHingeConstraint ([Ref] btRigidBody rbA, [Ref] btVector3 pivotInA, [Ref] btVector3 axisInA, optional boolean useReferenceFrameA);
-	void btHingeConstraint ([Ref] btRigidBody rbA, [Ref] btRigidBody rbB, [Ref] btTransform rbAFrame, [Ref] btTransform rbBFrame, optional boolean useReferenceFrameA);
-	void btHingeConstraint ([Ref] btRigidBody rbA, [Ref] btTransform rbAFrame, optional boolean useReferenceFrameA);
+	void btHingeConstraint([Ref] btRigidBody rbA, [Ref] btRigidBody rbB, [Ref] btVector3 pivotInA, [Ref] btVector3 pivotInB, [Ref] btVector3 axisInA, [Ref] btVector3 axisInB, optional boolean useReferenceFrameA);
+	void btHingeConstraint([Ref] btRigidBody rbA, [Ref] btVector3 pivotInA, [Ref] btVector3 axisInA, optional boolean useReferenceFrameA);
+	void btHingeConstraint([Ref] btRigidBody rbA, [Ref] btRigidBody rbB, [Ref] btTransform rbAFrame, [Ref] btTransform rbBFrame, optional boolean useReferenceFrameA);
+	void btHingeConstraint([Ref] btRigidBody rbA, [Ref] btTransform rbAFrame, optional boolean useReferenceFrameA);
 
 	void setLimit(float low, float high, float softness, float biasFactor, optional float relaxationFactor);
 	void enableAngularMotor(boolean enableMotor, float targetVelocity, float maxMotorImpulse);
@@ -573,7 +622,7 @@ interface btCollisionWorld {
 	btOverlappingPairCache getPairCache();
 	[Ref] btDispatcherInfo getDispatchInfo();
 	void addCollisionObject(btCollisionObject collisionObject, optional short collisionFilterGroup, optional short collisionFilterMask);
-	[Const] btBroadphaseInterface getBroadphase ();
+	[Const] btBroadphaseInterface getBroadphase();
 	void convexSweepTest([Const] btConvexShape castShape, [Const, Ref] btTransform from, [Const, Ref] btTransform to, [Ref] ConvexResultCallback resultCallback, float allowedCcdPenetration);
 	void contactPairTest([Const] btCollisionObject colObjA, [Const] btCollisionObject colObjB, [Ref] ContactResultCallback resultCallback);
 	void contactTest([Const] btCollisionObject colObj, [Ref] ContactResultCallback resultCallback);
@@ -628,7 +677,7 @@ interface btVehicleRaycasterResult {
 };
 
 interface btVehicleRaycaster {
-		void castRay ([Const, Ref] btVector3 from, [Const, Ref] btVector3 to, [Const, Ref] btVehicleRaycasterResult result);
+		void castRay([Const, Ref] btVector3 from, [Const, Ref] btVector3 to, [Const, Ref] btVehicleRaycasterResult result);
 };
 
 interface btDefaultVehicleRaycaster {
@@ -680,8 +729,8 @@ interface btWheelInfo {
 	[Value] attribute RaycastInfo m_raycastInfo;
 	[Value] attribute btVector3 m_chassisConnectionPointCS;
 	void btWheelInfo([Ref] btWheelInfoConstructionInfo ci);
-	float getSuspensionRestLength ();
-	void	updateWheel ([Const, Ref] btRigidBody chassis, [Ref] RaycastInfo raycastInfo);
+	float getSuspensionRestLength();
+	void	updateWheel([Const, Ref] btRigidBody chassis, [Ref] RaycastInfo raycastInfo);
 	[Value] attribute btTransform m_worldTransform;
 	[Value] attribute btVector3 m_wheelDirectionCS;
 	[Value] attribute btVector3 m_wheelAxleCS;
@@ -694,31 +743,31 @@ interface btWheelInfo {
 };
 
 interface btActionInterface {
-		void updateAction (btCollisionWorld collisionWorld, float deltaTimeStep);
+		void updateAction(btCollisionWorld collisionWorld, float deltaTimeStep);
 };
 
 interface btKinematicCharacterController {
 	void btKinematicCharacterController(btPairCachingGhostObject ghostObject, btConvexShape convexShape, float stepHeight, [Const,Ref] optional btVector3 upAxis);
 
 	void setUp([Const,Ref] btVector3 axis);
-	void setWalkDirection ([Const,Ref] btVector3 walkDirection);
-	void setVelocityForTimeInterval ([Const,Ref] btVector3 velocity, float timeInterval);
-	//void reset ();
-	void warp ([Const, Ref]btVector3 origin);
-	void preStep (btCollisionWorld collisionWorld);
-	void playerStep (btCollisionWorld collisionWorld, float dt);
-	void setFallSpeed (float fallSpeed);
-	void setJumpSpeed (float jumpSpeed);
-	void setMaxJumpHeight (float maxJumpHeight);
-	boolean canJump ();
-	void jump ();
-	void setGravity ([Const,Ref] btVector3 gravity);
-	[Value] btVector3 getGravity ();
-	void setMaxSlope (float slopeRadians);
-	float getMaxSlope ();
-	btPairCachingGhostObject getGhostObject ();
-	void setUseGhostSweepTest (boolean useGhostObjectSweepTest);
-	boolean onGround ();
+	void setWalkDirection([Const,Ref] btVector3 walkDirection);
+	void setVelocityForTimeInterval([Const,Ref] btVector3 velocity, float timeInterval);
+	//void reset();
+	void warp([Const, Ref]btVector3 origin);
+	void preStep(btCollisionWorld collisionWorld);
+	void playerStep(btCollisionWorld collisionWorld, float dt);
+	void setFallSpeed(float fallSpeed);
+	void setJumpSpeed(float jumpSpeed);
+	void setMaxJumpHeight(float maxJumpHeight);
+	boolean canJump();
+	void jump();
+	void setGravity([Const,Ref] btVector3 gravity);
+	[Value] btVector3 getGravity();
+	void setMaxSlope(float slopeRadians);
+	float getMaxSlope();
+	btPairCachingGhostObject getGhostObject();
+	void setUseGhostSweepTest(boolean useGhostObjectSweepTest);
+	boolean onGround();
 };
 btKinematicCharacterController implements btActionInterface;
 
@@ -877,7 +926,7 @@ interface btSoftBodySolver {
 };
 
 interface btDefaultSoftBodySolver {
-	void btDefaultSoftBodySolver ();
+	void btDefaultSoftBodySolver();
 };
 btDefaultSoftBodySolver implements btSoftBodySolver;
 
