@@ -11,14 +11,14 @@ class Shape {
 	var inst : Native.CollisionShape;
 	var getPrim : Void -> h3d.prim.Primitive;
 	var primitive : h3d.prim.Primitive;
-	public var inertia : h3d.col.Point;
+	public var inertia : Point;
 
 	function new(v,getPrim) {
 		inst = v;
 		this.getPrim = getPrim;
 		var inertia = new Native.Vector3();
 		inst.calculateLocalInertia(1.,inertia);
-		this.inertia = new h3d.col.Point(inertia.x(), inertia.y(), inertia.z());
+		this.inertia = inertia;
 		inertia.delete();
 	}
 

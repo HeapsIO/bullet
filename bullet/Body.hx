@@ -5,8 +5,8 @@ class Body {
 
 	var state : Native.MotionState;
 	var inst : Native.RigidBody;
-	var _pos = new h3d.col.Point();
-	var _vel = new h3d.col.Point();
+	var _pos = new Point();
+	var _vel = new Point();
 	var _q = new h3d.Quat();
 	var _tmp = new Array<Float>();
 
@@ -14,8 +14,8 @@ class Body {
 
 	public var shape(default,null) : Shape;
 	public var mass(default,null) : Float;
-	public var position(get,never) : h3d.col.Point;
-	public var velocity(get,set) : h3d.col.Point;
+	public var position(get,never) : Point;
+	public var velocity(get,set) : Point;
 	public var rotation(get,never) : h3d.Quat;
 	public var object(default,set) : h3d.scene.Object;
 
@@ -49,7 +49,7 @@ class Body {
 		@:privateAccess world.removeRigidBody(this);
 	}
 
-	public function setTransform( p : h3d.col.Point, ?q : h3d.Quat ) {
+	public function setTransform( p : Point, ?q : h3d.Quat ) {
 		var t = inst.getCenterOfMassTransform();
 		var v = new Native.Vector3(p.x, p.y, p.z);
 		t.setOrigin(v);
@@ -75,13 +75,13 @@ class Body {
 	}
 
 	public function loadPosFromObject() {
-		setTransform(new h3d.col.Point(object.x, object.y, object.z), object.getRotationQuat());
+		setTransform(new Point(object.x, object.y, object.z), object.getRotationQuat());
 	}
 
 	function get_position() {
 		var t = inst.getCenterOfMassTransform();
 		var p = t.getOrigin();
-		_pos.set(p.x(), p.y(), p.z());
+		_pos.assign(p);
 		p.delete();
 		return _pos;
 	}
@@ -97,7 +97,7 @@ class Body {
 
 	function get_velocity() {
 		var v = inst.getLinearVelocity();
-		_vel.set(v.x(),v.y(),v.z());
+		_vel.assign(v);
 		return _vel;
 	}
 
@@ -114,7 +114,7 @@ class Body {
 		inst.setLinearVelocity(zero);
 	}
 
-	static var zero = new Native.Vector3();
+	@:allow(bullet) static var zero = new Native.Vector3();
 
 	/**
 		Updated the linked object position and rotation based on physical simulation

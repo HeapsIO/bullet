@@ -1,4 +1,5 @@
 package bullet;
+import bullet.constraint.Constraint;
 
 @:hlNative("bullet")
 class World {
@@ -9,6 +10,7 @@ class World {
 	var solver : Native.ConstraintSolver;
 	var inst : Native.DiscreteDynamicsWorld;
 	var bodies : Array<Body> = [];
+	var constraints : Array<Constraint> = [];
 	public var parent : h3d.scene.Object;
 
 	public function new( ?parent ) {
@@ -47,6 +49,19 @@ class World {
 		@:privateAccess b.world = null;
 		inst.removeRigidBody(@:privateAccess b.inst);
 		if( b.object != null && b.object.parent == parent ) b.object.remove();
+	}
+
+	function addConstraint( c : Constraint ) {
+		if( c.world != null ) throw "Constraint already in world";
+		constraints.push(c);
+		@:privateAccess c.world = this;
+		inst.addConstraint(@:privateAccess c.cst, c.disableCollisionsBetweenLinkedBodies);
+	}
+
+	function removeConstraint( c : Constraint ) {
+		if( !constraints.remove(c) ) return;
+		@:privateAccess c.world = null;
+		inst.removeConstraint(@:privateAccess c.cst);
 	}
 
 }
