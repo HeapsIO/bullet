@@ -7,6 +7,7 @@ class Body {
 	var inst : Native.RigidBody;
 	var _pos = new Point();
 	var _vel = new Point();
+	var _avel = new Point();
 	var _q = new h3d.Quat();
 	var _tmp = new Array<Float>();
 
@@ -16,6 +17,7 @@ class Body {
 	public var mass(default,null) : Float;
 	public var position(get,never) : Point;
 	public var velocity(get,set) : Point;
+	public var angularVelocity(get,set) : Point;
 	public var rotation(get,never) : h3d.Quat;
 	public var object(default,set) : h3d.scene.Object;
 
@@ -109,9 +111,25 @@ class Body {
 		return v;
 	}
 
+	function get_angularVelocity() {
+		var v = inst.getAngularVelocity();
+		_avel.assign(v);
+		return _avel;
+	}
+
+	function set_angularVelocity(v) {
+		if( v != _avel ) _avel.load(v);
+		var p = new Native.Vector3(v.x, v.y, v.z);
+		inst.setAngularVelocity(p);
+		p.delete();
+		return v;
+	}
+
 	public function resetVelocity() {
 		inst.setAngularVelocity(zero);
 		inst.setLinearVelocity(zero);
+		_vel.set(0,0,0);
+		_avel.set(0,0,0);
 	}
 
 	@:allow(bullet) static var zero = new Native.Vector3();
