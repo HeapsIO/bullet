@@ -75,6 +75,17 @@ class Shape {
 			var cy = new h3d.prim.Cylinder( hxd.Math.imax(Math.ceil(ray*Math.PI*2 * 10), 6), ray, height, true);
 			cy.addUVs();
 			//cy.addTangents();
+			switch( axis ) {
+			case Z:
+			case X:
+				var m = new h3d.Matrix();
+				m.initRotation(0,Math.PI/2,0);
+				cy.transform(m);
+			case Y:
+				var m = new h3d.Matrix();
+				m.initRotation(Math.PI/2,0,0);
+				cy.transform(m);
+			}
 			return cy;
 		});
 		vec3.delete();
