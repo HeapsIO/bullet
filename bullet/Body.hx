@@ -3,6 +3,10 @@ package bullet;
 @:hlNative("bullet")
 class Body {
 
+	static inline var ACTIVE_TAG = 1;
+	static inline var DISABLE_DEACTIVATION = 4;
+	static inline var DISABLE_SIMULATION = 5;
+
 	var state : Native.MotionState;
 	var inst : Native.RigidBody;
 	var _pos = new Point();
@@ -20,6 +24,7 @@ class Body {
 	public var angularVelocity(get,set) : Point;
 	public var rotation(get,never) : h3d.Quat;
 	public var object(default,set) : h3d.scene.Object;
+	public var alwaysActive(default,set) = false;
 
 	public function new( shape : Shape, mass : Float, ?world : World ) {
 		var inertia = new Native.Vector3(shape.inertia.x * mass, shape.inertia.y * mass, shape.inertia.x * mass);
@@ -32,6 +37,11 @@ class Body {
 		this.mass = mass;
 		_tmp[6] = 0.;
 		if( world != null ) addTo(world);
+	}
+
+	function set_alwaysActive(b) {
+		inst.setActivationState(b ? DISABLE_DEACTIVATION : ACTIVE_TAG);
+		return alwaysActive = b;
 	}
 
 	function set_object(o) {
@@ -51,6 +61,28 @@ class Body {
 		@:privateAccess world.removeRigidBody(this);
 	}
 
+	public function setFriction( f ) {
+		inst.setFriction(f);
+	}
+
+	public function setRollingFriction( f ) {
+		inst.setRollingFriction(f);
+	}
+
+	public function addAxis( length = 1. ) {
+		if( object == null ) throw "Missing object";
+		var g = new h3d.scene.Graphics(object);
+		g.lineStyle(1,0xFF0000);
+		g.lineTo(length,0,0);
+		g.lineStyle(1,0x00FF00);
+		g.moveTo(0,0,0);
+		g.lineTo(0,length,0);
+		g.lineStyle(1,0x0000FF);
+		g.moveTo(0,0,0);
+		g.lineTo(0,0,length);
+		g.material.setDefaultProps("ui");
+	}
+
 	public function setTransform( p : Point, ?q : h3d.Quat ) {
 		var t = inst.getCenterOfMassTransform();
 		var v = new Native.Vector3(p.x, p.y, p.z);
@@ -62,6 +94,15 @@ class Body {
 			qv.delete();
 		}
 		inst.setCenterOfMassTransform(t);
+		inst.activate();
+	}
+
+	public function resetVelocity() {
+		inst.setAngularVelocity(zero);
+		inst.setLinearVelocity(zero);
+		_vel.set(0,0,0);
+		_avel.set(0,0,0);
+		if( world != null ) @:privateAccess world.clearBodyMovement(this);
 	}
 
 	public function initObject() {
@@ -125,14 +166,7 @@ class Body {
 		return v;
 	}
 
-	public function resetVelocity() {
-		inst.setAngularVelocity(zero);
-		inst.setLinearVelocity(zero);
-		_vel.set(0,0,0);
-		_avel.set(0,0,0);
-	}
-
-	@:allow(bullet) static var zero = new Native.Vector3();
+	@:allow(bullet) static var zero = new Native.Vector3(0,0,0);
 
 	/**
 		Updated the linked object position and rotation based on physical simulation

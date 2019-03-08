@@ -132,7 +132,7 @@ interface btCollisionObject {
 	[Ref] btTransform getWorldTransform();
 	//[Const, Ref] btTransform getWorldTransform();
 	void setWorldTransform([Const,Ref] btTransform worldTrans);
-	//btBroadphaseProxy getBroadphaseHandle();
+	[Const] btBroadphaseProxy getBroadphaseHandle();
 	//[Const] btBroadphaseProxy getBroadphaseHandle();
 	//void setBroadphaseHandle(btBroadphaseProxy handle);
 	//[Const,Ref] btTransform getInterpolationWorldTransform();
@@ -198,8 +198,8 @@ ClosestRayResultCallback implements RayResultCallback;
 interface btManifoldPoint {
 	[Const, Ref] btVector3 getPositionWorldOnA();
 	[Const, Ref] btVector3 getPositionWorldOnB();
-	[Const] double getAppliedImpulse();
-	[Const] double getDistance();
+	[Const] float getAppliedImpulse();
+	[Const] float getDistance();
 	[Value] attribute btVector3 m_localPointA;
 	[Value] attribute btVector3 m_localPointB;
 	[Value] attribute btVector3 m_positionWorldOnB;
@@ -429,6 +429,7 @@ interface btOverlappingPairCallback {
 
 interface btOverlappingPairCache {
 	void setInternalGhostPairCallback(btOverlappingPairCallback ghostPairCallback);
+	void cleanProxyFromPairs( btBroadphaseProxy proxy, btDispatcher dispatcher );
 };
 
 interface btAxisSweep3 {
@@ -436,6 +437,10 @@ interface btAxisSweep3 {
 };
 
 interface btBroadphaseInterface {
+	btOverlappingPairCache getOverlappingPairCache();
+};
+
+interface btBroadphaseProxy {
 };
 
 interface btCollisionConfiguration {
@@ -506,6 +511,9 @@ interface btTypedConstraint {
 	void setBreakingImpulseThreshold([Const] float threshold);
 	[Const] float getParam(long num, long axis);
 	void setParam(long num, float value, long axis);
+	float getAppliedImpulse();
+	void setEnabled( bool enabled );
+	bool isEnabled();
 };
 
 enum btConstraintParams {

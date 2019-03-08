@@ -7,6 +7,7 @@ class World {
 	var config : Native.DefaultCollisionConfiguration;
 	var dispatch : Native.Dispatcher;
 	var broad : Native.BroadphaseInterface;
+	var pcache : Native.OverlappingPairCache;
 	var solver : Native.ConstraintSolver;
 	var inst : Native.DiscreteDynamicsWorld;
 	var bodies : Array<Body> = [];
@@ -18,6 +19,7 @@ class World {
 		config = new Native.DefaultCollisionConfiguration();
 		dispatch = new Native.CollisionDispatcher(config);
 		broad = new Native.DbvtBroadphase();
+		pcache = broad.getOverlappingPairCache();
 		solver = new Native.SequentialImpulseConstraintSolver();
 		inst = new Native.DiscreteDynamicsWorld(dispatch, broad, solver, config);
 	}
@@ -34,6 +36,10 @@ class World {
 		for( b in bodies )
 			if( b.object != null )
 				b.sync();
+	}
+
+	function clearBodyMovement( b : Body ) {
+		pcache.cleanProxyFromPairs(@:privateAccess b.inst.getBroadphaseHandle(),dispatch);
 	}
 
 	function addRigidBody( b : Body ) {

@@ -18,4 +18,8 @@ class Hinge extends Constraint {
 		super(hg, world);
 	}
 
+	public function setMotor( targetSpeed : Float, maxImpulse : Float ) {
+		hg.enableAngularMotor(true,targetSpeed,maxImpulse);
+	}
+
 }
