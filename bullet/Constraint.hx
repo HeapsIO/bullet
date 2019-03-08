@@ -1,6 +1,5 @@
-package bullet.constraint;
+package bullet;
 
-@:hlNative("bullet")
 class Constraint {
 
 	var cst : Native.TypedConstraint;

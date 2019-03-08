@@ -1,7 +1,5 @@
 package bullet;
-import bullet.constraint.Constraint;
 
-@:hlNative("bullet")
 class World {
 
 	var config : Native.DefaultCollisionConfiguration;

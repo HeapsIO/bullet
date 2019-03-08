@@ -1,6 +1,5 @@
 package bullet.constraint;
 
-@:hlNative("bullet")
 class Point2Point extends Constraint {
 
 	var p2p : Native.Point2PointConstraint;

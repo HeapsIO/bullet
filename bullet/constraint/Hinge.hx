@@ -1,6 +1,5 @@
 package bullet.constraint;
 
-@:hlNative("bullet")
 class Hinge extends Constraint {
 
 	var hg : Native.HingeConstraint;

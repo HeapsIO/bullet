@@ -1,6 +1,5 @@
 package bullet;
 
-@:hlNative("bullet")
 class Body {
 
 	static inline var ACTIVE_TAG = 1;
